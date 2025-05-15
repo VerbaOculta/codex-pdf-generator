@@ -4,8 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "./render-build.sh && npx playwright install --with-deps"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
