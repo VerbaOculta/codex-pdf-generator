@@ -3,7 +3,11 @@ import bodyParser from 'body-parser';
 import { chromium } from 'playwright';
 
 const app = express();
-const PORT = process.env.PORT; // Railway asigna dinámicamente este puerto
+const PORT = process.env.PORT;
+
+if (!PORT) {
+  throw new Error("🚨 No se encontró process.env.PORT");
+}
 
 app.use(bodyParser.json({ limit: '2mb' }));
 
@@ -25,7 +29,6 @@ app.post('/generate', async (req, res) => {
 
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-
     await page.setContent(html, { waitUntil: 'load' });
 
     const pdfBuffer = await page.pdf({ format: 'A4' });
@@ -36,7 +39,6 @@ app.post('/generate', async (req, res) => {
     res.send(pdfBuffer);
 
     console.log('✅ PDF generado con éxito');
-
   } catch (err) {
     console.error('❌ Error generando PDF:', err);
     if (browser) await browser.close();
