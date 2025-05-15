@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import { chromium } from 'playwright';
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT; // Railway asigna dinámicamente este puerto
 
 app.use(bodyParser.json({ limit: '2mb' }));
 
