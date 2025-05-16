@@ -2,7 +2,7 @@ import express from 'express';
 import { chromium } from 'playwright';
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // por si el HTML es muy largo
 
 app.post('/generar', async (req, res) => {
   try {
@@ -15,7 +15,11 @@ app.post('/generar', async (req, res) => {
       waitUntil: 'domcontentloaded',
     });
 
-    const pdfBuffer = await page.pdf({ format: 'A4' });
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '0mm', bottom: '0mm', left: '0mm', right: '0mm' }
+    });
 
     await browser.close();
 
@@ -33,5 +37,3 @@ console.log("🚀 Variable de entorno PORT:", process.env.PORT);
 app.listen(PORT, () => {
   console.log(`Servidor PDF activo en puerto ${PORT}`);
 });
-
-
