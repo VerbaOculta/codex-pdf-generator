@@ -35,6 +35,3 @@ app.listen(PORT, () => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`Servidor PDF activo en puerto ${PORT}`);
-});
