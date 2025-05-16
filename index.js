@@ -28,6 +28,13 @@ app.post('/generar', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+console.log("🚀 Variable de entorno PORT:", process.env.PORT);
+
+app.listen(PORT, () => {
+  console.log(`Servidor PDF activo en puerto ${PORT}`);
+});
+
+
 app.listen(PORT, () => {
   console.log(`Servidor PDF activo en puerto ${PORT}`);
 });
