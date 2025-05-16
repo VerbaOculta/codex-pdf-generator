@@ -1,35 +1,19 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import { chromium } from 'playwright';
-
+const express = require('express');
+const { chromium } = require('playwright');
 const app = express();
-const PORT = process.env.PORT;
 
-if (!PORT) {
-  throw new Error("🚨 No se encontró process.env.PORT");
-}
+app.use(express.json());
 
-app.use(bodyParser.json({ limit: '2mb' }));
-
-app.get('/', (req, res) => {
-  res.send('✅ Codex PDF Generator is running');
-});
-
-app.post('/generate', async (req, res) => {
-  const { html } = req.body;
-
-  if (!html || typeof html !== 'string') {
-    console.warn('⚠️ HTML inválido:', html);
-    return res.status(400).json({ error: 'Invalid HTML string' });
-  }
-
-  let browser;
+app.post('/generar', async (req, res) => {
   try {
-    console.log('🚀 Generando PDF...');
+    const { html } = req.body;
 
-    browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch();
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load' });
+
+    await page.setContent(html || '<h1>Sin contenido</h1>', {
+      waitUntil: 'domcontentloaded',
+    });
 
     const pdfBuffer = await page.pdf({ format: 'A4' });
 
@@ -37,15 +21,10 @@ app.post('/generate', async (req, res) => {
 
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdfBuffer);
-
-    console.log('✅ PDF generado con éxito');
-  } catch (err) {
-    console.error('❌ Error generando PDF:', err);
-    if (browser) await browser.close();
-    res.status(500).json({ error: 'Error generando el PDF', details: err.message });
+  } catch (error) {
+    console.error('Error generando PDF:', error);
+    res.status(500).json({ error: 'Error generando PDF', details: error.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🌐 Servidor Codex PDF activo en puerto ${PORT}`);
-});
+app.listen(3000, () => console.log('Servidor PDF activo en puerto 3000'));
