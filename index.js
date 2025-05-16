@@ -1,18 +1,27 @@
-import express from 'express';
-import { chromium } from 'playwright';
-
-const app = express();
-app.use(express.json({ limit: '10mb' })); // por si el HTML es muy largo
-
 app.post('/generar', async (req, res) => {
-  try {
-    const { html } = req.body;
+  const { html, authKey } = req.body;
+  const trustedKey = process.env.API_SECRET_KEY;
 
+  // Verificación clave secreta
+  if (authKey !== trustedKey) {
+    return res.status(403).json({ error: 'Acceso no autorizado (clave)' });
+  }
+
+  // Verificación opcional por IP o encabezado
+  const userAgent = req.get('User-Agent') || '';
+  const customOrigin = req.get('x-vercel-backend') || '';
+  const allowedHeader = 'vercel-internal';
+
+  if (customOrigin !== allowedHeader) {
+    return res.status(403).json({ error: 'Acceso no autorizado (fuente)' });
+  }
+
+  try {
     const browser = await chromium.launch();
     const page = await browser.newPage();
 
     await page.setContent(html || '<h1>Sin contenido</h1>', {
-      waitUntil: 'networkidle', // ✅ espera carga completa de imágenes,
+      waitUntil: 'networkidle',
     });
 
     const pdfBuffer = await page.pdf({
@@ -29,11 +38,4 @@ app.post('/generar', async (req, res) => {
     console.error('Error generando PDF:', error);
     res.status(500).json({ error: 'Error generando PDF', details: error.message });
   }
-});
-
-const PORT = process.env.PORT || 3000;
-console.log("🚀 Variable de entorno PORT:", process.env.PORT);
-
-app.listen(PORT, () => {
-  console.log(`Servidor PDF activo en puerto ${PORT}`);
 });
