@@ -1,7 +1,7 @@
-const express = require('express');
-const { chromium } = require('playwright');
-const app = express();
+import express from 'express';
+import { chromium } from 'playwright';
 
+const app = express();
 app.use(express.json());
 
 app.post('/generar', async (req, res) => {
@@ -27,4 +27,7 @@ app.post('/generar', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('Servidor PDF activo en puerto 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor PDF activo en puerto ${PORT}`);
+});
