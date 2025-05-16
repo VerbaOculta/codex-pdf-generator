@@ -12,7 +12,7 @@ app.post('/generar', async (req, res) => {
     const page = await browser.newPage();
 
     await page.setContent(html || '<h1>Sin contenido</h1>', {
-      waitUntil: 'domcontentloaded',
+      waitUntil: 'networkidle', // ✅ espera carga completa de imágenes,
     });
 
     const pdfBuffer = await page.pdf({
